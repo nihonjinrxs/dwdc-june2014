@@ -1,0 +1,9 @@
+Data Wrangling Talk - John Tillinghast.pptx
+csv/REPL.R
+
+.DS_Store
+.Rapp.history
+.Rhistory
+.ipynb_checkpoints/*
+.ipynb_checkpoints
+
