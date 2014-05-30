@@ -1,0 +1,6 @@
+output:
+  html_document:
+    theme: spacelab
+    highlight: espresso
+    toc: true
+    number_sections: true

@@ -1,0 +1,163 @@
+---
+title: "Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup"
+output:
+  html_document:
+    author: Ryan B. Harvey (ryan.b.harvey@gmail.com)
+    date: March 17, 2014
+---
+
+Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup
+==============================================================
+**Author:**  [Ryan B. Harvey](http://datascientist.guru)
+([ryan.b.harvey@gmail.com](mailto:ryan.b.harvey@gmail.com))
+
+**Created:** 2014-03-17 / **Last Updated:** 2014-05-30
+
+**Contents:**
+- How to connect R to PostgreSQL
+- Options in dplyr for SQL
+- How to pull in tables from the DB
+- How to pull query results into R
+- Validation of analysis done in SQL
+
+**Package Dependencies:**
+- **[RPostgreSQL](http://cran.r-project.org/package=RPostgreSQL):** [more info & source](https://code.google.com/p/rpostgresql/)
+- **[dplyr](http://cran.r-project.org/package=dplyr):** [intro blog post](http://blog.rstudio.org/2014/01/17/introducing-dplyr/), [more info & source](https://github.com/hadley/dplyr)
+
+Since we're using PostgreSQL, we'll need R connectors for that. If the RPostgreSQL package doesn't exist in your environment, install it. Once you have it, require it.
+```{r}
+# install.packages("RPostgreSQL")
+require(RPostgreSQL)
+```
+
+Although you can just connect to the database directly through RPostgreSQL, we'll use dplyr tools with our connection to databases in order to make our data manipulation easier and more portable across different database platforms.  If the dplyr package doesn't exist in your environment, install the package.  Once you have it, require it.
+```{r}
+# install.packages("dplyr")
+require(dplyr)
+```
+
+Connect to the database, provides an object 'src' to use in future work
+```{r}
+my_db <- src_postgres()
+```
+
+Then we'll tell it which schema in the database we want to work with.
+```{r}
+dbGetQuery(my_db$con,"set search_path to dwdc;")
+```
+
+Now we'll do some pulling from tables, just to see how RPostgreSQL works.
+--------------------------------
+
+Grab a table from the database and dump it into a data frame
+```{r}
+my_all_visits <- as.data.frame(tbl(my_db, "all_visits"))
+my_all_visits
+```
+
+Side note: If you want to see what SQL is being run, you can turn on dplyr's option to view the SQL.
+```{r}
+options(dplyr.show_sql = TRUE)
+
+my_all_visits <- as.data.frame(tbl(my_db, "all_visits"))
+```
+
+If you want to see more about the SQL being run, you can turn on dplyr's option to explain:
+```{r}
+options(dplyr.explain_sql = TRUE)
+
+my_all_visits <- as.data.frame(tbl(my_db, "all_visits"))
+```
+
+For now, we'll turn the more detailed logging off:
+```{r}
+options(dplyr.show_sql = FALSE)
+options(dplyr.explain_sql = FALSE)
+```
+
+We can also grab the results of an arbitrary SQL query and dump it into a data frame.
+```{r}
+my_all_visits_joined_with_ids <- as.data.frame(tbl(my_db,
+sql("
+select 
+  i.id, 
+  i.first_name, 
+  i.dob, 
+  v.visit_date, 
+  v.height 
+from dwdc.ids i 
+left join dwdc.all_visits v 
+on i.first_name = v.first_name
+")
+))
+my_all_visits_joined_with_ids
+```
+
+Back to the problem at hand...
+------------------------------
+Since we can get the age within the database too...  let's do that.
+```{r}
+my_visits_with_age <- as.data.frame(tbl(my_db,
+sql("
+with all_visits_and_ids (id, first_name, dob, visit_date, height) as (
+  select i.id, i.first_name, i.dob, v.visit_date, v.height
+  from dwdc.ids i left join dwdc.all_visits v on i.first_name = v.first_name
+)
+select 
+  id, first_name, dob, 
+  extract(epoch from age(visit_date, dob))/(3600 * 24)/365.25 as age,
+  visit_date, height
+from all_visits_and_ids
+")
+))
+my_visits_with_age
+```
+
+Now, we continue the analysis we were doing before.
+```{r}
+my_visits_by_name <- group_by(my_visits_with_age, first_name)
+est_growth <- function(x, y) {
+  mod <- lm(y ~ x)
+  return(coef(mod)[2])
+}
+my_growth_rates_R <- summarize(my_visits_by_name, growth_rate = est_growth(age, height))
+my_growth_rates_R
+```
+
+Compare results with the SQL only version
+-----------------------------------------
+As we saw, we can do all of this in SQL.  Load in the SQL version and compare.
+```{r}
+my_growth_rates_sql <- as.data.frame(tbl(my_db,
+sql("
+with all_visits_and_ids (id, first_name, dob, visit_date, height) as (
+  select i.id, i.first_name, i.dob, v.visit_date, v.height
+  from dwdc.ids i left join dwdc.all_visits v on i.first_name = v.first_name
+)
+, all_visits_and_ids_with_age (id, first_name, dob, age, visit_date, height) As (
+  select 
+    id, first_name, dob, 
+    extract(epoch from age(visit_date, dob))/(3600 * 24)/365.25 as age,
+    visit_date, height
+  from all_visits_and_ids
+)
+select id, first_name, regr_slope(height, age) as growth_rate
+from all_visits_and_ids_with_age
+group by id, first_name
+order by id ASC
+")
+))
+my_growth_rates_sql
+```
+
+Now let's build the comparison table (and rename columns for easier reading):
+```{r}
+my_comparison = left_join(my_growth_rates_sql, my_growth_rates_R, by="first_name")
+my_comparison$new.col <- my_comparison$growth_rate.x - my_comparison$growth_rate.y
+
+names(my_comparison)[3] <- "growth_rate.SQL"
+names(my_comparison)[4] <- "growth_rate.R"
+names(my_comparison)[5] <- "residual.SQLvsR"
+
+my_comparison
+```
