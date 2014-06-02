@@ -6,7 +6,7 @@ This repository contains materials for [my talk at the Data Wranglers DC meetup 
 ### Contents
 The talk consists of several major directions:
 - A slide deck (`./slides`) in Apple Keynote, PDF and HTML formats
-- Sample data in CSV format (`./csv`), courtesy of @tilling
+- Sample data in CSV format (`./csv`), courtesy of [tilling](https://github.com/tilling)
 - A set of SQL scripts (`./sql`) that create the local PostgreSQL database used for the examples and perform the simple linear model analysis example
 - An RMarkdown document (`./R`), [published on RPubs](http://rpubs.com/ryanbharvey/dwdc-june2014), that uses the data from the database to perform the analysis in R and compare with the SQL results
 - An iPython notebook document (`./python`) that uses the data from the database to perform the example analysis, compare the results across SQL and R, and plot the resulting linear models
