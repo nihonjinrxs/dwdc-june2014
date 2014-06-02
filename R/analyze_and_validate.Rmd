@@ -2,16 +2,15 @@
 title: "Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup"
 output:
   html_document:
-    author: Ryan B. Harvey (ryan.b.harvey@gmail.com)
+    author: Ryan B. Harvey
     date: March 17, 2014
 ---
 
 Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup
 ==============================================================
 **Author:**  [Ryan B. Harvey](http://datascientist.guru)
-([ryan.b.harvey@gmail.com](mailto:ryan.b.harvey@gmail.com))
 
-**Created:** 2014-03-17 / **Last Updated:** 2014-05-30
+**Created:** 2014-03-17 / **Last Updated:** 2014-06-01
 
 **Contents:**
 - How to connect R to PostgreSQL
@@ -23,6 +22,15 @@ Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup
 **Package Dependencies:**
 - **[RPostgreSQL](http://cran.r-project.org/package=RPostgreSQL):** [more info & source](https://code.google.com/p/rpostgresql/)
 - **[dplyr](http://cran.r-project.org/package=dplyr):** [intro blog post](http://blog.rstudio.org/2014/01/17/introducing-dplyr/), [more info & source](https://github.com/hadley/dplyr)
+
+**References:**
+- This RPub was created for a talk to the Data Wranglers DC meetup group on June 4, 2014.
+  - Talk information: [http://www.meetup.com/Data-Wranglers-DC/events/171768162/](http://www.meetup.com/Data-Wranglers-DC/events/171768162/)
+  - This is only a portion of the talk, which included database information, SQL code (which sets up the database used below), and an iPython notebook too.
+  - My code, slides and the sample data are all available on Github. [https://github.com/nihonjinrxs/dwdc-june2014](https://github.com/nihonjinrxs/dwdc-june2014)
+- The sample data for this work were created by John Tillinghast for his talk, for which mine is a sequel (no pun intended).
+  - Talk information: [http://www.meetup.com/Data-Wranglers-DC/events/160287602/](http://www.meetup.com/Data-Wranglers-DC/events/160287602/)
+  - John's data, code and slides are available on Github: [https://github.com/tilling/Reduce-the-Pain](https://github.com/tilling/Reduce-the-Pain)
 
 Since we're using PostgreSQL, we'll need R connectors for that. If the RPostgreSQL package doesn't exist in your environment, install it. Once you have it, require it.
 ```{r}
@@ -36,9 +44,10 @@ Although you can just connect to the database directly through RPostgreSQL, we'l
 require(dplyr)
 ```
 
-Connect to the database, provides an object 'src' to use in future work
+Connect to the database using the dplyr connection function. Provides a connection object `my_db` to use in future work.  
+> Note that since I'm using defaults for my local PostgreSQL install, dplyr and RPostgreSQL are smart enough to not need any parameters except the name of the database (`ryan` in this case).
 ```{r}
-my_db <- src_postgres()
+my_db <- src_postgres(dbname="ryan")
 ```
 
 Then we'll tell it which schema in the database we want to work with.

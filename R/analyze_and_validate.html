@@ -181,10 +181,9 @@ hljs.initHighlightingOnLoad();
 <body>
 <h1>Data Wrangling with SQL : Data Wranglers DC : June 2014 Meetup</h1>
 
-<p><strong>Author:</strong>  <a href="http://datascientist.guru">Ryan B. Harvey</a>
-(<a href="mailto:ryan.b.harvey@gmail.com">ryan.b.harvey@gmail.com</a>)</p>
+<p><strong>Author:</strong>  <a href="http://datascientist.guru">Ryan B. Harvey</a></p>
 
-<p><strong>Created:</strong> 2014-03-17 / <strong>Last Updated:</strong> 2014-05-30</p>
+<p><strong>Created:</strong> 2014-03-17 / <strong>Last Updated:</strong> 2014-06-01</p>
 
 <p><strong>Contents:</strong></p>
 
@@ -201,6 +200,24 @@ hljs.initHighlightingOnLoad();
 <ul>
 <li><strong><a href="http://cran.r-project.org/package=RPostgreSQL">RPostgreSQL</a>:</strong> <a href="https://code.google.com/p/rpostgresql/">more info &amp; source</a></li>
 <li><strong><a href="http://cran.r-project.org/package=dplyr">dplyr</a>:</strong> <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/">intro blog post</a>, <a href="https://github.com/hadley/dplyr">more info &amp; source</a></li>
+</ul>
+
+<p><strong>References:</strong></p>
+
+<ul>
+<li>This RPub was created for a talk to the Data Wranglers DC meetup group on June 4, 2014.
+
+<ul>
+<li>Talk information: <a href="http://www.meetup.com/Data-Wranglers-DC/events/171768162/">http://www.meetup.com/Data-Wranglers-DC/events/171768162/</a></li>
+<li>This is only a portion of the talk, which included database information, SQL code (which sets up the database used below), and an iPython notebook too.</li>
+<li>My code, slides and the sample data are all available on Github. <a href="https://github.com/nihonjinrxs/dwdc-june2014">https://github.com/nihonjinrxs/dwdc-june2014</a></li>
+</ul></li>
+<li>The sample data for this work were created by John Tillinghast for his talk, for which mine is a sequel (no pun intended).
+
+<ul>
+<li>Talk information: <a href="http://www.meetup.com/Data-Wranglers-DC/events/160287602/">http://www.meetup.com/Data-Wranglers-DC/events/160287602/</a></li>
+<li>John&#39;s data, code and slides are available on Github: <a href="https://github.com/tilling/Reduce-the-Pain">https://github.com/tilling/Reduce-the-Pain</a></li>
+</ul></li>
 </ul>
 
 <p>Since we&#39;re using PostgreSQL, we&#39;ll need R connectors for that. If the RPostgreSQL package doesn&#39;t exist in your environment, install it. Once you have it, require it.</p>
@@ -232,9 +249,13 @@ require(dplyr)
 ##     intersect, setdiff, setequal, union
 </code></pre>
 
-<p>Connect to the database, provides an object &#39;src&#39; to use in future work</p>
+<p>Connect to the database using the dplyr connection function. Provides a connection object <code>my_db</code> to use in future work.  </p>
 
-<pre><code class="r">my_db &lt;- src_postgres()
+<blockquote>
+<p>Note that since I&#39;m using defaults for my local PostgreSQL install, dplyr and RPostgreSQL are smart enough to not need any parameters except the name of the database (<code>ryan</code> in this case).</p>
+</blockquote>
+
+<pre><code class="r">my_db &lt;- src_postgres(dbname=&quot;ryan&quot;)
 </code></pre>
 
 <p>Then we&#39;ll tell it which schema in the database we want to work with.</p>
