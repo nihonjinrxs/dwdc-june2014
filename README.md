@@ -1,5 +1,5 @@
 # Data Wrangling in SQL & Other Tools
-## Scripting Reproducible and Understandable Data Wrangling and Analysis Pipelines with Tabular and Relational Data
+##### Scripting Reproducible and Understandable Data Wrangling and Analysis Pipelines with Tabular and Relational Data
 
 This repository contains materials for [my talk at the Data Wranglers DC meetup on June 4, 2014](http://www.meetup.com/Data-Wranglers-DC/events/171768162/).
 
