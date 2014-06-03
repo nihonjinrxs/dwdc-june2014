@@ -17,3 +17,5 @@ I recommend that anyone wishing to understand what I've done should tackle these
 ### Future Work
 Given time and maturity of database libraries, I hope to add a parallel example in Julia soon.
 
+### Disclaimer
+This work and the opinions expressed here are my own, and do not purport to represent the views of my current or former employers.
